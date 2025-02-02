@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "../include/Gimmel/include/gimmel.hpp"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -44,5 +45,8 @@ public:
 
 private:
     //==============================================================================
+    juce::AudioProcessorValueTreeState treeState;
+    giml::SinOsc<float> mOsc{48000};
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

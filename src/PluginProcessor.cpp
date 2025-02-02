@@ -1,6 +1,28 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+// add params
+juce::AudioProcessorValueTreeState::ParameterLayout
+parameters() {
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameter_list;
+
+    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "volume(dB)",
+        "Volume(dB)",
+        -96.0,
+        6.0,
+        -96.0));
+
+    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "frequency",
+        "Frequency",
+        0.0,
+        20000.0,
+        220.0));
+
+    return { parameter_list.begin(), parameter_list.end() };
+}
+
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -10,7 +32,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), treeState(*this, nullptr, "Parameters", parameters())
 {
 }
 
@@ -88,6 +110,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    mOsc.setSampleRate(sampleRate);
+    mOsc.setFrequency(220);
+
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 }
 
@@ -145,18 +170,20 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+    mOsc.setFrequency(treeState.getRawParameterValue("frequency")->load());
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
+        float voldB = treeState.getRawParameterValue("volume(dB)")->load();
+        float output = mOsc.processSample() * giml::dBtoA(voldB);
+        for (int channel = 0; channel < totalNumInputChannels; ++channel) {
+            buffer.addSample(channel, sample, output);
+        }
     }
 }
 
 //==============================================================================
 bool AudioPluginAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return false; // (change this to false if you choose to not supply an editor)
 }
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
