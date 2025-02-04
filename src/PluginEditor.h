@@ -54,7 +54,6 @@ class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
 public:
     explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
     ~AudioPluginAudioProcessorEditor() override;
-    Oscilloscope mOscilloscope;
 
     //==============================================================================
     void paint (juce::Graphics&) override;

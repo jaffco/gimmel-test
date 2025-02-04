@@ -10,8 +10,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize (1080, 540);
     addAndMakeVisible(&mFxMenu);
-    addAndMakeVisible(&processorRef.mOscilloscope);
-    addAndMakeVisible(&processorRef.jOscilloscope);
+    addAndMakeVisible(&p.mAudioVisualizerComponent);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -35,6 +34,5 @@ void AudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
-    processorRef.jOscilloscope.setBounds(bounds.getWidth() / 2, 0, bounds.getWidth() / 2, bounds.getHeight() / 2);
-    processorRef.mOscilloscope.setBounds(bounds.getWidth() / 2, bounds.getHeight() / 2, bounds.getWidth() / 2, bounds.getHeight() / 2);
+    processorRef.mAudioVisualizerComponent.setBounds(bounds.getWidth() / 2, 0, bounds.getWidth() / 2, bounds.getHeight() / 2);
 }

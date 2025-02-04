@@ -113,11 +113,10 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     mOsc.setSampleRate(sampleRate);
     mOsc.setFrequency(220);
 
-    // init scopes
-    mOscilloscope.prepareToPlay(sampleRate);
-    jOscilloscope.setSamplesPerBlock(samplesPerBlock);
-    jOscilloscope.setBufferSize(static_cast<int>(sampleRate / samplesPerBlock));
-    jOscilloscope.setColours(juce::Colours::black, juce::Colours::white);
+    // init mAudioVisualizerComponent
+    mAudioVisualizerComponent.setSamplesPerBlock(samplesPerBlock);
+    mAudioVisualizerComponent.setBufferSize(static_cast<int>(sampleRate / samplesPerBlock));
+    mAudioVisualizerComponent.setColours(juce::Colours::black, juce::Colours::white);
 
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 }
@@ -181,13 +180,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         float voldB = treeState.getRawParameterValue("volume(dB)")->load();
         // float output = mOsc.processSample() * giml::dBtoA(voldB);
         float output = mOsc.processSample();
-        jOscilloscope.pushSample(&output, 1);
-        mOscilloscope.writeInputSample(output);
-
-        // test oscilloscope
-        // mOscilloscope.writeInputSample(buffer.getSample(0, sample));
-        // float output = mOsc.processSample();
-        // mOscilloscope.writeOutputSample(output);
+        mAudioVisualizerComponent.pushSample(&output, 1);
 
         // write output to all channels
         for (int channel = 0; channel < totalNumInputChannels; ++channel) {
