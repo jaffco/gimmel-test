@@ -18,7 +18,7 @@ parameters() {
         "Frequency",
         0.0,
         20000.0,
-        220.0));
+        1.0));
 
     return { parameter_list.begin(), parameter_list.end() };
 }
@@ -113,6 +113,12 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     mOsc.setSampleRate(sampleRate);
     mOsc.setFrequency(220);
 
+    // init scopes
+    mOscilloscope.prepareToPlay(sampleRate);
+    jOscilloscope.setSamplesPerBlock(samplesPerBlock);
+    jOscilloscope.setBufferSize(static_cast<int>(sampleRate / samplesPerBlock));
+    jOscilloscope.setColours(juce::Colours::black, juce::Colours::white);
+
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 }
 
@@ -173,7 +179,17 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     mOsc.setFrequency(treeState.getRawParameterValue("frequency")->load());
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
         float voldB = treeState.getRawParameterValue("volume(dB)")->load();
-        float output = mOsc.processSample() * giml::dBtoA(voldB);
+        // float output = mOsc.processSample() * giml::dBtoA(voldB);
+        float output = mOsc.processSample();
+        jOscilloscope.pushSample(&output, 1);
+        mOscilloscope.writeInputSample(output);
+
+        // test oscilloscope
+        // mOscilloscope.writeInputSample(buffer.getSample(0, sample));
+        // float output = mOsc.processSample();
+        // mOscilloscope.writeOutputSample(output);
+
+        // write output to all channels
         for (int channel = 0; channel < totalNumInputChannels; ++channel) {
             buffer.addSample(channel, sample, output);
         }
@@ -183,7 +199,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 //==============================================================================
 bool AudioPluginAudioProcessor::hasEditor() const
 {
-    return false; // (change this to false if you choose to not supply an editor)
+    return true; // (change this to false if you choose to not supply an editor)
 }
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()

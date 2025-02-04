@@ -8,7 +8,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (1080, 540);
+    addAndMakeVisible(&mFxMenu);
+    addAndMakeVisible(&processorRef.mOscilloscope);
+    addAndMakeVisible(&processorRef.jOscilloscope);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -23,11 +26,15 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    auto bounds = getLocalBounds();
+    mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
+    processorRef.jOscilloscope.setBounds(bounds.getWidth() / 2, 0, bounds.getWidth() / 2, bounds.getHeight() / 2);
+    processorRef.mOscilloscope.setBounds(bounds.getWidth() / 2, bounds.getHeight() / 2, bounds.getWidth() / 2, bounds.getHeight() / 2);
 }
