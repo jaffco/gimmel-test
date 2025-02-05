@@ -44,7 +44,9 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::AudioVisualiserComponent mAudioVisualizerComponent{1};
+    // input, output, and spectral scopes
+    static const size_t numScopes = 2;
+    juce::AudioVisualiserComponent scopes[2] { { 1 }, { 1 } };
 
 private:
     //==============================================================================

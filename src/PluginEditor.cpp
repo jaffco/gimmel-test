@@ -10,7 +10,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize (1080, 540);
     addAndMakeVisible(&mFxMenu);
-    addAndMakeVisible(&p.mAudioVisualizerComponent);
+    for (auto& scope : processorRef.scopes) 
+    {
+        addAndMakeVisible(&scope);
+    }
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -22,10 +25,6 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
@@ -34,5 +33,9 @@ void AudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
-    processorRef.mAudioVisualizerComponent.setBounds(bounds.getWidth() / 2, 0, bounds.getWidth() / 2, bounds.getHeight() / 2);
+    int scopeHeight = bounds.getHeight() / processorRef.numScopes;
+    for (size_t i = 0; i < processorRef.numScopes; ++i) 
+    {
+        processorRef.scopes[i].setBounds(bounds.getWidth() / 2, i * scopeHeight, bounds.getWidth() / 2, scopeHeight);
+    }
 }

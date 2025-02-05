@@ -11,7 +11,7 @@ parameters() {
         "Volume(dB)",
         -96.0,
         6.0,
-        -96.0));
+        -3.0));
 
     parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
         "frequency",
@@ -114,9 +114,13 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     mOsc.setFrequency(220);
 
     // init mAudioVisualizerComponent
-    mAudioVisualizerComponent.setSamplesPerBlock(samplesPerBlock);
-    mAudioVisualizerComponent.setBufferSize(static_cast<int>(sampleRate / samplesPerBlock));
-    mAudioVisualizerComponent.setColours(juce::Colours::black, juce::Colours::white);
+    for (auto& scope : scopes) 
+    {
+        scope.setNumChannels(1);
+        scope.setSamplesPerBlock(samplesPerBlock);
+        scope.setBufferSize(static_cast<int>(sampleRate / samplesPerBlock));
+    }
+    scopes[1].setColours(juce::Colours::black, juce::Colours::blue);
 
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 }
@@ -177,15 +181,25 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // interleaved by keeping the same state.
     mOsc.setFrequency(treeState.getRawParameterValue("frequency")->load());
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
+
+        // feed input scope
+        const float* input = buffer.getReadPointer(0, sample);;
+        scopes[0].pushSample(input, 1);
+
+        // calculate output sample
         float voldB = treeState.getRawParameterValue("volume(dB)")->load();
-        // float output = mOsc.processSample() * giml::dBtoA(voldB);
-        float output = mOsc.processSample();
-        mAudioVisualizerComponent.pushSample(&output, 1);
+        //float out = mOsc.processSample() * giml::dBtoA(voldB);
+        float out = *input;
 
         // write output to all channels
-        for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-            buffer.addSample(channel, sample, output);
+        for (int channel = 0; channel < totalNumInputChannels; channel++) 
+        {
+            buffer.addSample(channel, sample, out);
         }
+
+        // feed output scope
+        const float* output = buffer.getReadPointer(0, sample);
+        scopes[1].pushSample(output, 1);
     }
 }
 
