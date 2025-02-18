@@ -3,220 +3,13 @@
 
 // add params
 juce::AudioProcessorValueTreeState::ParameterLayout
-parameters() {
+parameters(ParameterFloat& param) {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameter_list;
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "volume(dB)",
-        "Volume(dB)",
-        -96.0,
-        6.0,
-        -3.0));
     
-    parameter_list.push_back(std::make_unique<juce::AudioParameterBool>(
-        "chorusToggle",
-        "chorusToggle",
-        false));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "chorusRate",
-        "chorusRate",
-        0.0,
-        20.0,
-        0.2));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "chorusDepth",
-        "chorusDepth",
-        0.0,
-        100.0,
-        20.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "chorusBlend",
-        "chorusBlend",
-        0.0,
-        1.0,
-        0.5));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorThreshold",
-        "compressorThreshold",
-        -60.0,
-        0.0,
-        0.0));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorRatio",
-        "compressorRatio",
-        1.0,
-        20.0,
-        2.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorMakeup",
-        "compressorMakeup",
-        0.0,
-        20.0,
-        0.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorKnee",
-        "compressorKnee",
-        0.0,
-        20.0,
-        1.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorAttack",
-        "compressorAttack",
-        0.1,
-        100.0,
-        3.5));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "compressorRelease",
-        "compressorRelease",
-        0.1,
-        100.0,
-        100.0));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "delayTime",
-        "delayTime",
-        0.0,
-        1000.0,
-        398.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "delayFeedback",
-        "delayFeedback",
-        0.0,
-        1.0,
-        0.3));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "delayDamping",
-        "delayDamping",
-        0.0,
-        1.0,
-        0.5));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "delayBlend",
-        "delayBlend",
-        0.0,
-        1.0,
-        0.5));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "detunePitchRatio",
-        "detunePitchRatio",
-        0.5,
-        2.0,
-        1.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "detuneWindowSize",
-        "detuneWindowSize",
-        0.0,
-        300.0,
-        22.0));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "detuneBlend",
-        "detuneBlend",
-        0.0,
-        1.0,
-        0.5));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "flangerRate",
-        "flangerRate",
-        0.0,
-        20.0,
-        0.2));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "flangerDepth",
-        "flangerDepth",
-        0.0,
-        10.0,
-        5.0));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "flangerBlend",
-        "flangerBlend",
-        0.0,
-        1.0,
-        0.5));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "phaserRate",
-        "phaserRate",
-        0.0,
-        20.0,
-        0.5));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "phaserFeedback",
-        "phaserFeedback",
-        0.0,
-        1.0,
-        0.85));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbTime",
-        "reverbTime",
-        0.0,
-        1.0,
-        0.03));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbRegen",
-        "reverbRegen",
-        0.0,
-        1.0,
-        0.3));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbDamping",
-        "reverbDamping",
-        0.0,
-        1.0,
-        0.5));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbBlend",
-        "reverbBlend",
-        0.0,
-        1.0,
-        0.5));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbSize",
-        "reverbSize",
-        0.0,
-        50.0,
-        1.0));
-    
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "reverbAbsorption",
-        "reverbAbsorption",
-        0.0,
-        1.0,
-        0.75));
-
-    parameter_list.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "tremoloRate",
-        "tremoloRate",
-        0.0,
-        2000.0,
-        1000.0));
+    param.addToTree(parameter_list);
     
     return { parameter_list.begin(), parameter_list.end() };
 }
-
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -226,7 +19,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), treeState(*this, nullptr, "Parameters", parameters())
+                       ), treeState(*this, nullptr, "Parameters", parameters(mVolume))
 {
 }
 
@@ -415,12 +208,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         scopes[0].pushSample(input, 1);
 
         // calculate output sample
-        float voldB = treeState.getRawParameterValue("volume(dB)")->load();
-        mChorus->toggle(treeState.getRawParameterValue("chorusToggle")->load());
-        mChorus->setRate(treeState.getRawParameterValue("chorusRate")->load());
-        mChorus->setDepth(treeState.getRawParameterValue("chorusDepth")->load());
-        mChorus->setBlend(treeState.getRawParameterValue("chorusBlend")->load());
-        float out = mEffectsLine.processSample(*input);
+        //float out = mEffectsLine.processSample(*input);
+        //float out = *input * giml::dBtoA(treeState.getRawParameterValue("volume")->load());
+        float out = 0.f * treeState.getRawParameterValue("volume")->load();
 
         // write output to all channels
         for (int channel = 0; channel < totalNumInputChannels; channel++) 

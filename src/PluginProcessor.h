@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../include/Gimmel/include/gimmel.hpp"
+#include "wrapper.hpp"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -48,8 +49,11 @@ public:
     static const size_t numScopes = 2;
     juce::AudioVisualiserComponent scopes[2] { { 1 }, { 1 } };
 
+    ParameterFloat mVolume{"volume", -96.f, 6.f, -96.f};
+
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;
+    
 
 private:
     //==============================================================================

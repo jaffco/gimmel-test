@@ -11,7 +11,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setSize (1080, 540);
 
     // init fxMenu
-    mFxMenu.attachParams(p);
+    mFxMenu.attachParam("volume", p.treeState);
+    mFxMenu.makeVisible();
+    mFxMenu.resized();
 
     addAndMakeVisible(&mFxMenu);
     for (auto& scope : processorRef.scopes) 
