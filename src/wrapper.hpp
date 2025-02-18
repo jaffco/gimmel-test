@@ -20,6 +20,7 @@ private:
   std::unique_ptr<juce::ToggleButton> toggle;
   std::unique_ptr<BUTTON_ATTACHMENT> bAttachment;
   std::vector<std::unique_ptr<juce::Slider>> params;
+  std::vector<std::unique_ptr<juce::Label>> labels;
   std::vector<std::unique_ptr<SLIDER_ATTACHMENT>> sAttachments;
 
 public:
@@ -35,6 +36,10 @@ public:
     for (auto& p : params) {
       addAndMakeVisible(p.get());
     }
+
+    for (auto& l : labels) {
+      addAndMakeVisible(l.get());
+    } 
   }
 
   void resized() override {
@@ -42,8 +47,10 @@ public:
     auto itemHeight = bounds.getHeight() / (params.size() + 1);
 
     toggle->setBounds(bounds.removeFromTop(itemHeight));
-    for (auto& p : params) {
-      p->setBounds(bounds.removeFromTop(itemHeight));
+    for (int i = 0; i < params.size(); i++) {
+      auto area = bounds.removeFromTop(itemHeight);
+      labels[i]->setBounds(area.removeFromTop(20));
+      params[i]->setBounds(area.removeFromTop(20));
     }
   }
 
@@ -52,11 +59,18 @@ public:
   }
 
   void attachToggle(std::string name, APVTS& treeState) {
-    bAttachment = (MAKE_BUTTON(treeState, name, *toggle.get()));
+    bAttachment = MAKE_BUTTON(treeState, name, *toggle.get());
   }
 
   void attachParam(std::string name, APVTS& treeState) {
     params.push_back(std::make_unique<juce::Slider>());
+
+    labels.push_back(std::make_unique<juce::Label>(name, name));
+    auto& label = labels.back();
+    label->setBorderSize ({ 1, 1, 1, 1 });
+    label->setJustificationType(juce::Justification::centred);
+    label->attachToComponent(params.back().get(), false);
+
     sAttachments.push_back(MAKE_SLIDER(treeState, name, *params.back().get()));
   }
 
