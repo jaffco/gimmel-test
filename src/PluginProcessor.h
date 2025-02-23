@@ -53,9 +53,8 @@ public:
     ParameterFloat chorusRate { "chorusRate", 0.f, 20.f, 0.2f };
     ParameterFloat chorusDepth { "chorusDepth", 0.f, 50.f, 20.f };
     ParameterFloat chorusBlend { "chorusBlend", 0.f, 1.f, 0.5f };
-    ParameterFloat volume { "volume", 0.f, 1.f, 0.5f };
 
-    ParameterBundle mParams{&chorusToggle, &chorusRate, &chorusDepth, &chorusBlend, &volume}; 
+    ParameterBundle mParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend }; 
 
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;

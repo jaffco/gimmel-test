@@ -202,6 +202,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
 
+    // update params at block rate
+    mChorus->toggle(treeState.getRawParameterValue("chorusToggle")->load());
+    mChorus->setParams(treeState.getRawParameterValue("chorusRate")->load(),
+                       treeState.getRawParameterValue("chorusDepth")->load(),
+                       treeState.getRawParameterValue("chorusBlend")->load());
+
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
@@ -211,7 +217,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
         // calculate output sample
         float out = mEffectsLine.processSample(*input);
-        // out *= *treeState.getRawParameterValue("Volume");
 
         // write output to all channels
         for (int channel = 0; channel < totalNumInputChannels; channel++) 

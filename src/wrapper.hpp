@@ -37,13 +37,29 @@ public:
 
 class ParameterBundle : public std::vector<Parameter*> {
 public:
+
   ParameterBundle(std::initializer_list<Parameter*> params) {
     for (auto& p : params) {
       this->push_back(p);
     }
   }
-  ParameterBundle(const ParameterBundle& pb) {}
-  ParameterBundle& operator=(const ParameterBundle& pb) {}
+
+  ParameterBundle(const ParameterBundle& pb) {
+    for (auto& p : pb) {
+      this->push_back(p);
+    }
+  }
+
+  ParameterBundle& operator=(const ParameterBundle& pb) {
+    if (this != &pb) {
+      this->clear();
+      for (auto& p : pb) {
+        this->push_back(p);
+      }
+    }
+    return *this;
+  }
+  
   ~ParameterBundle() {}
 
   void addToTree(PARAM_LIST& pList) {
@@ -58,9 +74,6 @@ public:
     }
   }
 
-  // std::vector<std::unique_ptr<Parameter>>* getParams() {
-  //   return &params;
-  // }
 };
 
 class EffectGui : public juce::Component {
