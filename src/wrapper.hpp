@@ -14,6 +14,54 @@
 #define MAKE_SLIDER std::make_unique<SLIDER_ATTACHMENT>
 #define MAKE_BUTTON std::make_unique<BUTTON_ATTACHMENT>
 
+// Forward declarations
+class Parameter;
+class ParameterBundle;
+class EffectGui;
+
+// Interface class
+class Parameter {
+protected: 
+  std::string name;
+  bool amToggle = false;
+
+public:
+  Parameter() {}
+  virtual ~Parameter() {}
+
+  std::string getName() { return this->name; }
+  bool isToggle() { return this->amToggle; }
+  virtual void addToTree(PARAM_LIST& pList) = 0;
+  virtual void addToGui(EffectGui& gui, APVTS& treeState) = 0;
+};
+
+class ParameterBundle : public std::vector<Parameter*> {
+public:
+  ParameterBundle(std::initializer_list<Parameter*> params) {
+    for (auto& p : params) {
+      this->push_back(p);
+    }
+  }
+  ParameterBundle(const ParameterBundle& pb) {}
+  ParameterBundle& operator=(const ParameterBundle& pb) {}
+  ~ParameterBundle() {}
+
+  void addToTree(PARAM_LIST& pList) {
+    for (auto& param : *this) {
+      param->addToTree(pList);
+    }
+  }
+
+  void addToGui(EffectGui& gui, APVTS& treeState) {
+    for (auto& param : *this) {
+      param->addToGui(gui, treeState);
+    }
+  }
+
+  // std::vector<std::unique_ptr<Parameter>>* getParams() {
+  //   return &params;
+  // }
+};
 
 class EffectGui : public juce::Component {
 private:
@@ -74,22 +122,43 @@ public:
     sAttachments.push_back(MAKE_SLIDER(treeState, name, *params.back().get()));
   }
 
-};
-
-class FxMenu : public juce::TabbedComponent {
-private:
-public:
-
-
-  void addEffect(EffectGui& eg) {
-    addTab(eg.getName(), juce::Colours::darkolivegreen, &eg, true);
+  // TODO: memory safety
+  void attachParams(ParameterBundle& params, APVTS& treeState) {
+    for (auto& p : params) {
+      if (p->isToggle()) {
+        this->attachToggle(p->getName(), treeState);
+      } else {
+        this->attachParam(p->getName(), treeState);
+      }
+    }
   }
 
 };
 
-class ParameterFloat {
+class ParameterBool : public Parameter {
 private:
-  std::string name;
+  bool value = false;
+
+public:
+
+  ParameterBool(std::string name, bool def = false) {
+    this->amToggle = true;
+    this->name = name;
+    this->value = def;
+  }
+
+  void addToTree(PARAM_LIST& pList) override {
+    pList.push_back(MAKE_PARAMB(this->name, this->name, value));
+  }
+
+  void addToGui(EffectGui& gui, APVTS& treeState) override {
+    gui.attachToggle(this->name, treeState);
+  }
+
+};
+  
+class ParameterFloat : public Parameter {
+private:
   float min = 0.f, max = 1.f, def = 0.f;
 
 public:
@@ -101,34 +170,22 @@ public:
     this->def = def;
   }
 
-  void addToTree(PARAM_LIST& pList) {
-    pList.push_back(MAKE_PARAMF(name, name, min, max, def));
+  void addToTree(PARAM_LIST& pList) override {
+    pList.push_back(MAKE_PARAMF(this->name, this->name, min, max, def));
   }
 
-  void addToGui(EffectGui& gui, APVTS& treeState) {
+  void addToGui(EffectGui& gui, APVTS& treeState) override {
     gui.attachParam(name, treeState);
   }
 
 };
 
-class ParameterBool {
-  private:
-    std::string name = "";
-    bool value = false;
-  
-  public:
+class FxMenu : public juce::TabbedComponent {
+private:
+public:
 
-    ParameterBool(std::string name, float def = false) {
-      this->name = name;
-      this->value = def;
-    }
-  
-    void addToTree(PARAM_LIST& pList) {
-      pList.push_back(MAKE_PARAMB(name, name, value));
-    }
-  
-    void addToGui(EffectGui& gui, APVTS& treeState) {
-      gui.attachToggle(name, treeState);
-    }
-  
-  };
+  void addEffect(EffectGui& eg) {
+    addTab(eg.getName(), juce::Colours::darkolivegreen, &eg, true);
+  }
+
+};

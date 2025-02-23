@@ -11,11 +11,11 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setSize (1080, 540);
 
     // init fxMenu
-    mFxMenu.attachParam("volume", p.treeState);
-    mFxMenu.makeVisible();
-    mFxMenu.resized();
+    mEffectGui.attachParams(p.mParams, p.treeState);
+    mEffectGui.makeVisible();
+    mEffectGui.resized();
+    addAndMakeVisible(&mEffectGui);
 
-    addAndMakeVisible(&mFxMenu);
     for (auto& scope : processorRef.scopes) 
     {
         addAndMakeVisible(&scope);
@@ -38,7 +38,7 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
-    mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
+    mEffectGui.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
     int scopeHeight = bounds.getHeight() / processorRef.numScopes;
     for (size_t i = 0; i < processorRef.numScopes; ++i) 
     {

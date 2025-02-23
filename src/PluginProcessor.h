@@ -49,7 +49,13 @@ public:
     static const size_t numScopes = 2;
     juce::AudioVisualiserComponent scopes[2] { { 1 }, { 1 } };
 
-    ParameterFloat mVolume{"volume", -96.f, 6.f, -96.f};
+    ParameterBool chorusToggle { "chorusToggle" };
+    ParameterFloat chorusRate { "chorusRate", 0.f, 20.f, 0.2f };
+    ParameterFloat chorusDepth { "chorusDepth", 0.f, 50.f, 20.f };
+    ParameterFloat chorusBlend { "chorusBlend", 0.f, 1.f, 0.5f };
+    ParameterFloat volume { "volume", 0.f, 1.f, 0.5f };
+
+    ParameterBundle mParams{&chorusToggle, &chorusRate, &chorusDepth, &chorusBlend, &volume}; 
 
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;

@@ -3,10 +3,12 @@
 
 // add params
 juce::AudioProcessorValueTreeState::ParameterLayout
-parameters(ParameterFloat& param) {
+parameters(ParameterBundle params) {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameter_list;
     
-    param.addToTree(parameter_list);
+    for (auto& p : params) {
+        p->addToTree(parameter_list);
+    }
     
     return { parameter_list.begin(), parameter_list.end() };
 }
@@ -19,7 +21,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), treeState(*this, nullptr, "Parameters", parameters(mVolume))
+                       ), treeState(*this, nullptr, "Parameters", parameters(mParams))
 {
 }
 
@@ -208,9 +210,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         scopes[0].pushSample(input, 1);
 
         // calculate output sample
-        //float out = mEffectsLine.processSample(*input);
-        //float out = *input * giml::dBtoA(treeState.getRawParameterValue("volume")->load());
-        float out = 0.f * treeState.getRawParameterValue("volume")->load();
+        float out = mEffectsLine.processSample(*input);
+        // out *= *treeState.getRawParameterValue("Volume");
 
         // write output to all channels
         for (int channel = 0; channel < totalNumInputChannels; channel++) 
