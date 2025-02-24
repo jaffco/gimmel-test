@@ -191,16 +191,19 @@ public:
 };
 
 class FxMenu : public juce::TabbedComponent {
-  private:
   public:
     FxMenu(bool vertical = true) : juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
       if (vertical) {
         setTabBarDepth(30);
       }
     }
-  
-    void addEffect(EffectGui& eg) {
-      addTab(eg.getName(), juce::Colours::darkolivegreen, &eg, true);
+
+    void addEffect(std::string name, ParameterBundle& params, APVTS& treeState) {
+      auto eg = std::make_unique<EffectGui>(name);
+      eg->attachParams(params, treeState);
+      eg->makeVisible();
+      eg->resized();
+      addTab(name, juce::Colours::darkolivegreen, eg.release(), true);
     }
   
   };

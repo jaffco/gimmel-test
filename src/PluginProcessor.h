@@ -62,9 +62,11 @@ public:
     ParameterFloat compressorAttack { "compressorAttack", 0.f, 10.f, 3.5f };
     ParameterFloat compressorRelease { "compressorRelease", 0.f, 300.f, 100.f };
 
+    // Bundles are useful for grouping by effect to add tabs to the GUI
     ParameterBundle chorusParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend };
     ParameterBundle compressorParams{ &compressorToggle, &compressorThreshold, &compressorRatio, &compressorMakeup, &compressorKnee, &compressorAttack, &compressorRelease }; 
 
+    // Stack is useful for adding to the treeState
     ParameterStack fxParams{ &chorusParams, &compressorParams };
     
     // public treeState?

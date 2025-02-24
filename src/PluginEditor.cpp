@@ -10,17 +10,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize (1080, 540);
 
-    // init fxMenu
-    chorusGui.attachParams(*p.fxParams[0], p.treeState);
-    chorusGui.makeVisible();
-    chorusGui.resized();
-
-    compressorGui.attachParams(*p.fxParams[1], p.treeState);
-    compressorGui.makeVisible();
-    compressorGui.resized();
-
-    mFxMenu.addEffect(chorusGui);
-    mFxMenu.addEffect(compressorGui);
+    mFxMenu.addEffect("Chorus", p.chorusParams, p.treeState);
+    mFxMenu.addEffect("Compressor", p.compressorParams, p.treeState);
     addAndMakeVisible(&mFxMenu);
 
     for (auto& scope : processorRef.scopes) 

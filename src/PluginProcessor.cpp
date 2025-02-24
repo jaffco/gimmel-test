@@ -3,7 +3,7 @@
 
 // add params
 juce::AudioProcessorValueTreeState::ParameterLayout
-parameters(ParameterStack params) {
+parameters(ParameterStack& params) {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameter_list;
     
     for (auto& p : params) {
