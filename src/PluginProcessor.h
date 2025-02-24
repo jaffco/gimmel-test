@@ -54,8 +54,19 @@ public:
     ParameterFloat chorusDepth { "chorusDepth", 0.f, 50.f, 20.f };
     ParameterFloat chorusBlend { "chorusBlend", 0.f, 1.f, 0.5f };
 
-    ParameterBundle mParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend }; 
+    ParameterBool compressorToggle { "compressorToggle" };
+    ParameterFloat compressorThreshold { "compressorThreshold", -60.f, 0.f, 0.f };
+    ParameterFloat compressorRatio { "compressorRatio", 1.f, 20.f, 2.f };
+    ParameterFloat compressorMakeup { "compressorMakeup", 0.f, 24.f, 0.f };
+    ParameterFloat compressorKnee { "compressorKnee", 0.f, 5.f, 1.f };
+    ParameterFloat compressorAttack { "compressorAttack", 0.f, 10.f, 3.5f };
+    ParameterFloat compressorRelease { "compressorRelease", 0.f, 300.f, 100.f };
 
+    ParameterBundle chorusParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend };
+    ParameterBundle compressorParams{ &compressorToggle, &compressorThreshold, &compressorRatio, &compressorMakeup, &compressorKnee, &compressorAttack, &compressorRelease }; 
+
+    ParameterStack fxParams{ &chorusParams, &compressorParams };
+    
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;
     

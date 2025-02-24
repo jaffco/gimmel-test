@@ -3,7 +3,7 @@
 
 // add params
 juce::AudioProcessorValueTreeState::ParameterLayout
-parameters(ParameterBundle params) {
+parameters(ParameterStack params) {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameter_list;
     
     for (auto& p : params) {
@@ -21,7 +21,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), treeState(*this, nullptr, "Parameters", parameters(mParams))
+                       ), treeState(*this, nullptr, "Parameters", parameters(fxParams))
 {
 }
 
@@ -207,6 +207,14 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     mChorus->setParams(treeState.getRawParameterValue("chorusRate")->load(),
                        treeState.getRawParameterValue("chorusDepth")->load(),
                        treeState.getRawParameterValue("chorusBlend")->load());
+
+    mCompressor->toggle(treeState.getRawParameterValue("compressorToggle")->load());
+    mCompressor->setParams(treeState.getRawParameterValue("compressorThreshold")->load(),
+                           treeState.getRawParameterValue("compressorRatio")->load(),
+                           treeState.getRawParameterValue("compressorMakeup")->load(),
+                           treeState.getRawParameterValue("compressorKnee")->load(),
+                           treeState.getRawParameterValue("compressorAttack")->load(),
+                           treeState.getRawParameterValue("compressorRelease")->load());
 
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {

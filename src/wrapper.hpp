@@ -17,6 +17,7 @@
 // Forward declarations
 class Parameter;
 class ParameterBundle;
+class ParameterStack;
 class EffectGui;
 
 // Interface class
@@ -59,7 +60,7 @@ public:
     }
     return *this;
   }
-  
+
   ~ParameterBundle() {}
 
   void addToTree(PARAM_LIST& pList) {
@@ -75,6 +76,47 @@ public:
   }
 
 };
+
+class ParameterStack : public std::vector<ParameterBundle*> {
+  public:
+  
+    ParameterStack(std::initializer_list<ParameterBundle*> bundles) {
+      for (auto& b : bundles) {
+        this->push_back(b);
+      }
+    }
+  
+    ParameterStack(const ParameterStack& ps) {
+      for (auto& pb : ps) {
+        this->push_back(pb);
+      }
+    }
+  
+    ParameterStack& operator=(const ParameterStack& ps) {
+      if (this != &ps) {
+        this->clear();
+        for (auto& pb : ps) {
+          this->push_back(pb);
+        }
+      }
+      return *this;
+    }
+  
+    ~ParameterStack() {}
+  
+    void addToTree(PARAM_LIST& pList) {
+      for (auto& bundle : *this) {
+        bundle->addToTree(pList);
+      }
+    }
+  
+    void addToGui(EffectGui& gui, APVTS& treeState) {
+      for (auto& bundle : *this) {
+        bundle->addToGui(gui, treeState);
+      }
+    }
+  
+  };
 
 class EffectGui : public juce::Component {
 private:
@@ -148,57 +190,62 @@ public:
 
 };
 
-class ParameterBool : public Parameter {
-private:
-  bool value = false;
-
-public:
-
-  ParameterBool(std::string name, bool def = false) {
-    this->amToggle = true;
-    this->name = name;
-    this->value = def;
-  }
-
-  void addToTree(PARAM_LIST& pList) override {
-    pList.push_back(MAKE_PARAMB(this->name, this->name, value));
-  }
-
-  void addToGui(EffectGui& gui, APVTS& treeState) override {
-    gui.attachToggle(this->name, treeState);
-  }
-
-};
-  
-class ParameterFloat : public Parameter {
-private:
-  float min = 0.f, max = 1.f, def = 0.f;
-
-public:
-
-  ParameterFloat(std::string name, float minVal, float maxVal, float def = 0.f) {
-    this->name = name;
-    this->min = minVal;
-    this->max = maxVal;
-    this->def = def;
-  }
-
-  void addToTree(PARAM_LIST& pList) override {
-    pList.push_back(MAKE_PARAMF(this->name, this->name, min, max, def));
-  }
-
-  void addToGui(EffectGui& gui, APVTS& treeState) override {
-    gui.attachParam(name, treeState);
-  }
-
-};
-
 class FxMenu : public juce::TabbedComponent {
-private:
-public:
+  private:
+  public:
+    FxMenu(bool vertical = true) : juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
+      if (vertical) {
+        setTabBarDepth(30);
+      }
+    }
+  
+    void addEffect(EffectGui& eg) {
+      addTab(eg.getName(), juce::Colours::darkolivegreen, &eg, true);
+    }
+  
+  };
 
-  void addEffect(EffectGui& eg) {
-    addTab(eg.getName(), juce::Colours::darkolivegreen, &eg, true);
-  }
-
-};
+  class ParameterBool : public Parameter {
+    private:
+      bool value = false;
+    
+    public:
+    
+      ParameterBool(std::string name, bool def = false) {
+        this->amToggle = true;
+        this->name = name;
+        this->value = def;
+      }
+    
+      void addToTree(PARAM_LIST& pList) override {
+        pList.push_back(MAKE_PARAMB(this->name, this->name, value));
+      }
+    
+      void addToGui(EffectGui& gui, APVTS& treeState) override {
+        gui.attachToggle(this->name, treeState);
+      }
+    
+    };
+      
+    class ParameterFloat : public Parameter {
+    private:
+      float min = 0.f, max = 1.f, def = 0.f;
+    
+    public:
+    
+      ParameterFloat(std::string name, float minVal, float maxVal, float def = 0.f) {
+        this->name = name;
+        this->min = minVal;
+        this->max = maxVal;
+        this->def = def;
+      }
+    
+      void addToTree(PARAM_LIST& pList) override {
+        pList.push_back(MAKE_PARAMF(this->name, this->name, min, max, def));
+      }
+    
+      void addToGui(EffectGui& gui, APVTS& treeState) override {
+        gui.attachParam(name, treeState);
+      }
+    
+    };
