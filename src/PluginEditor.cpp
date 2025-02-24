@@ -12,6 +12,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     mFxMenu.addEffect("Chorus", p.chorusParams, p.treeState);
     mFxMenu.addEffect("Compressor", p.compressorParams, p.treeState);
+    mFxMenu.addEffect("Delay", p.delayParams, p.treeState);
+    mFxMenu.addEffect("Detune", p.detuneParams, p.treeState);
+    mFxMenu.addEffect("Flanger", p.flangerParams, p.treeState);
+    mFxMenu.addEffect("Phaser", p.phaserParams, p.treeState);
+    mFxMenu.addEffect("Reverb", p.reverbParams, p.treeState);
+    mFxMenu.addEffect("Tremolo", p.tremoloParams, p.treeState);
     addAndMakeVisible(&mFxMenu);
 
     for (auto& scope : processorRef.scopes) 

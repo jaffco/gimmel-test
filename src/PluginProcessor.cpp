@@ -215,6 +215,38 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                            treeState.getRawParameterValue("compressorKnee")->load(),
                            treeState.getRawParameterValue("compressorAttack")->load(),
                            treeState.getRawParameterValue("compressorRelease")->load());
+    
+    mDelay->toggle(treeState.getRawParameterValue("delayToggle")->load());
+    mDelay->setParams(treeState.getRawParameterValue("delayTime")->load(),
+                      treeState.getRawParameterValue("delayFeedback")->load(),
+                      treeState.getRawParameterValue("delayDamping")->load(),
+                      treeState.getRawParameterValue("delayBlend")->load());
+
+    mDetune->toggle(treeState.getRawParameterValue("detuneToggle")->load());
+    mDetune->setParams(treeState.getRawParameterValue("detunePitchRatio")->load(),
+                       treeState.getRawParameterValue("detuneWindowSize")->load(),
+                       treeState.getRawParameterValue("detuneBlend")->load());
+
+    mFlanger->toggle(treeState.getRawParameterValue("flangerToggle")->load());
+    mFlanger->setParams(treeState.getRawParameterValue("flangerRate")->load(),
+                        treeState.getRawParameterValue("flangerDepth")->load(),
+                        treeState.getRawParameterValue("flangerBlend")->load());
+
+    mPhaser->toggle(treeState.getRawParameterValue("phaserToggle")->load());
+    mPhaser->setParams(treeState.getRawParameterValue("phaserRate")->load(),
+                       treeState.getRawParameterValue("phaserFeedback")->load());
+
+    mReverb->toggle(treeState.getRawParameterValue("reverbToggle")->load());
+    mReverb->setParams(treeState.getRawParameterValue("reverbTime")->load(),
+                       treeState.getRawParameterValue("reverbRegen")->load(),
+                       treeState.getRawParameterValue("reverbDamping")->load(),
+                       treeState.getRawParameterValue("reverbBlend")->load(),
+                       treeState.getRawParameterValue("reverbRoomLength")->load(),
+                       treeState.getRawParameterValue("reverbAbsorptionCoefficient")->load());
+
+    mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
+    mTremolo->setParams(treeState.getRawParameterValue("tremoloSpeed")->load(),
+                        treeState.getRawParameterValue("tremoloDepth")->load());
 
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
