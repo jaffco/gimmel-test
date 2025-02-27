@@ -131,6 +131,7 @@ public:
   EffectGui(std::string name) {
     this->setName(name);
     this->toggle = std::make_unique<juce::ToggleButton>();
+    this->toggle->setButtonText("Toggle");
   }
 
   void makeVisible() {
