@@ -4,6 +4,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../include/Gimmel/include/gimmel.hpp"
 #include "wrapper.hpp"
+#include "../media/test.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -131,6 +132,9 @@ private:
     std::unique_ptr<giml::Phaser<float>> mPhaser;
     std::unique_ptr<giml::Reverb<float>> mReverb;
     std::unique_ptr<giml::Tremolo<float>> mTremolo;
+
+    // for wavfile
+    int playHead = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

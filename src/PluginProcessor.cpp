@@ -252,7 +252,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
         // feed input scope
-        const float* input = buffer.getReadPointer(0, sample);;
+        // const float* input = buffer.getReadPointer(0, sample);
+        const float* input = &wav_data[playHead];
+        playHead++;                        
+        if (playHead >= wav_data_len) { playHead = 0; }
         scopes[0].pushSample(input, 1);
 
         // calculate output sample
