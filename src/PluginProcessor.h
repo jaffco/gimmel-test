@@ -3,7 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../include/Gimmel/include/gimmel.hpp"
-#include "wrapper.hpp"
+#include "Parameters.hpp"
 #include "../media/test.h"
 
 //==============================================================================

@@ -101,6 +101,8 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // initialisation that you need..
 
     // init fx
+    // TODO: giml:SampleRateObserver
+    // TODO: giml::EffectLine::addEffect() (encapsulation)
     int sr = static_cast<int>(sampleRate);
 
     mChorus = std::make_unique<giml::Chorus<float>>(sr);
@@ -181,28 +183,16 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
     juce::ignoreUnused (midiMessages);
-
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-
     // update params at block rate
+    // TODO: giml::EffectLine::updateParams()
+    // ^This is non-trivial. The giml::Effect class would need a virtual function setParams()
+    // that supports a variable number of arguments & variable argument types.
     mChorus->toggle(treeState.getRawParameterValue("chorusToggle")->load());
     mChorus->setParams(treeState.getRawParameterValue("chorusRate")->load(),
                        treeState.getRawParameterValue("chorusDepth")->load(),
@@ -251,11 +241,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-        // feed input scope
-        // const float* input = buffer.getReadPointer(0, sample);
-        const float* input = &wav_data[playHead];
+        // const float* input = buffer.getReadPointer(0, sample); // option for real-time input
+        const float* input = &wav_data[playHead]; // read from looping file
         playHead++;                        
         if (playHead >= wav_data_len) { playHead = 0; }
+
+        // feed input scope
         scopes[0].pushSample(input, 1);
 
         // calculate output sample

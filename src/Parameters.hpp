@@ -1,3 +1,12 @@
+//====================================================================================================
+/* Joel A. Jaffe 2025-03-10
+
+This header file defines and implements a set of classes that simplify the process of 
+creating parameter objects and attaching them to the AudioProcessorValueTreeState and GUI.
+
+*/
+//====================================================================================================
+
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
