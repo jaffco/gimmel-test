@@ -95,6 +95,11 @@ public:
     ParameterFloat tremoloRate { "tremoloSpeed", 10.f, 2000.f, 1000.f };
     ParameterFloat tremoloDepth { "tremoloDepth", 0.f, 1.f, 0.5f };
 
+    ParameterBool envelopeToggle { "envelopeToggle" };
+    ParameterFloat envelopeQFactor { "envelopeQFactor", 0.1f, 20.f, 5.f };
+    ParameterFloat envelopeAttackMs { "envelopeAttackMs", 0.f, 1000.f, 7.76f };
+    ParameterFloat envelopeReleaseMs { "envelopeReleaseMs", 0.f, 2000.f, 1105.f };
+
     // Bundles are useful for grouping by effect to add tabs to the GUI
     ParameterBundle chorusParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend };
     ParameterBundle compressorParams{ &compressorToggle, &compressorThreshold, &compressorRatio, &compressorMakeup, &compressorKnee, &compressorAttack, &compressorRelease }; 
@@ -104,6 +109,7 @@ public:
     ParameterBundle phaserParams{ &phaserToggle, &phaserRate, &phaserFeedback };
     ParameterBundle reverbParams{ &reverbToggle, &reverbTime, &reverbRegen, &reverbDamping, &reverbBlend, &reverbRoomLength, &reverbAbsorptionCoefficient };
     ParameterBundle tremoloParams{ &tremoloToggle, &tremoloRate, &tremoloDepth };
+    ParameterBundle envelopeParams{ &envelopeToggle, &envelopeQFactor, &envelopeAttackMs, &envelopeReleaseMs };
 
     // Stack is useful for adding to the treeState
     ParameterStack fxParams{ &chorusParams, 
@@ -113,16 +119,15 @@ public:
                             &flangerParams,
                             &phaserParams, 
                             &reverbParams,
-                            &tremoloParams };
+                            &tremoloParams,
+                            &envelopeParams };
     
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;
     
 
 private:
-    //==============================================================================
-
-    // giml effects
+    //==============================================================================    // giml effects
     giml::EffectsLine<float> mEffectsLine;
     std::unique_ptr<giml::Chorus<float>> mChorus;
     std::unique_ptr<giml::Compressor<float>> mCompressor;
@@ -132,6 +137,7 @@ private:
     std::unique_ptr<giml::Phaser<float>> mPhaser;
     std::unique_ptr<giml::Reverb<float>> mReverb;
     std::unique_ptr<giml::Tremolo<float>> mTremolo;
+    std::unique_ptr<giml::EnvelopeFilter<float>> mEnvelope;
 
     // for wavfile
     int playHead = 0;

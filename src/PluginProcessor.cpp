@@ -131,11 +131,14 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
     mReverb = std::make_unique<giml::Reverb<float>>(sr);
     mReverb->setParams(0.03f, 0.3f, 0.5f, 0.5f, 50.f, 0.9f); // needs defaults 
-    mEffectsLine.pushBack(mReverb.get());
+    mEffectsLine.pushBack(mReverb.get());    
 
     mTremolo = std::make_unique<giml::Tremolo<float>>(sr);
     mTremolo->setParams();
     mEffectsLine.pushBack(mTremolo.get());
+
+    mEnvelope = std::make_unique<giml::EnvelopeFilter<float>>(sr);
+    mEffectsLine.pushBack(mEnvelope.get());
 
     // init mAudioVisualizerComponent
     for (auto& scope : scopes) 
@@ -232,17 +235,20 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                        treeState.getRawParameterValue("reverbDamping")->load(),
                        treeState.getRawParameterValue("reverbBlend")->load(),
                        treeState.getRawParameterValue("reverbRoomLength")->load(),
-                       treeState.getRawParameterValue("reverbAbsorptionCoefficient")->load());
-
-    mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
+                       treeState.getRawParameterValue("reverbAbsorptionCoefficient")->load());    mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
     mTremolo->setParams(treeState.getRawParameterValue("tremoloSpeed")->load(),
                         treeState.getRawParameterValue("tremoloDepth")->load());
+
+    mEnvelope->toggle(treeState.getRawParameterValue("envelopeToggle")->load());
+    mEnvelope->setParams(treeState.getRawParameterValue("envelopeQFactor")->load(), 
+                         treeState.getRawParameterValue("envelopeAttackMs")->load(), 
+                         treeState.getRawParameterValue("envelopeReleaseMs")->load());
 
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-        // const float* input = buffer.getReadPointer(0, sample); // option for real-time input
-        const float* input = &wav_data[playHead]; // read from looping file
+        const float* input = buffer.getReadPointer(0, sample); // option for real-time input
+        // const float* input = &wav_data[playHead]; // read from looping file
         playHead++;                        
         if (playHead >= wav_data_len) { playHead = 0; }
 
