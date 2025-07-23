@@ -34,6 +34,7 @@ class Parameter {
 protected: 
   std::string name;
   bool amToggle = false;
+  bool amChoice = false;
 
 public:
   Parameter() {}
@@ -41,6 +42,7 @@ public:
 
   std::string getName() { return this->name; }
   bool isToggle() { return this->amToggle; }
+  bool isChoice() { return this->amChoice; }
   virtual void addToTree(PARAM_LIST& pList) = 0;
   virtual void addToGui(EffectGui& gui, APVTS& treeState) = 0;
 };
@@ -134,6 +136,8 @@ private:
   std::vector<std::unique_ptr<juce::Slider>> params;
   std::vector<std::unique_ptr<juce::Label>> labels;
   std::vector<std::unique_ptr<SLIDER_ATTACHMENT>> sAttachments;
+  std::vector<std::unique_ptr<juce::ComboBox>> choices;
+  std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>> cAttachments;
 
 public:
 
@@ -153,17 +157,29 @@ public:
     for (auto& l : labels) {
       addAndMakeVisible(l.get());
     } 
+
+    for (auto& c : choices) {
+      addAndMakeVisible(c.get());
+    }
   }
 
   void resized() override {
     auto bounds = getLocalBounds();
-    auto itemHeight = bounds.getHeight() / (params.size() + 1);
+    auto totalItems = params.size() + choices.size() + 1; // +1 for toggle
+    auto itemHeight = bounds.getHeight() / totalItems;
 
     toggle->setBounds(bounds.removeFromTop(itemHeight));
+    
     for (int i = 0; i < params.size(); i++) {
       auto area = bounds.removeFromTop(itemHeight);
       labels[i]->setBounds(area.removeFromTop(20));
       params[i]->setBounds(area.removeFromTop(20));
+    }
+
+    for (int i = 0; i < choices.size(); i++) {
+      auto area = bounds.removeFromTop(itemHeight);
+      // Choice labels are handled by attachChoice method
+      choices[i]->setBounds(area);
     }
   }
 
@@ -187,11 +203,32 @@ public:
     sAttachments.push_back(MAKE_SLIDER(treeState, name, *params.back().get()));
   }
 
+  void attachChoice(std::string name, APVTS& treeState) {
+    choices.push_back(std::make_unique<juce::ComboBox>());
+    auto& comboBox = choices.back();
+    
+    // Get the parameter from the tree state to access its choices
+    if (auto* param = dynamic_cast<juce::AudioParameterChoice*>(treeState.getParameter(name))) {
+        // Add all choices to the combo box
+        for (int i = 0; i < param->choices.size(); ++i) {
+            comboBox->addItem(param->choices[i], i + 1); // ComboBox items are 1-indexed
+        }
+    }
+    
+    // Set up the combo box
+    comboBox->setTextWhenNothingSelected("Select " + name);
+    comboBox->setTextWhenNoChoicesAvailable("No choices available");
+    
+    cAttachments.push_back(std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(treeState, name, *comboBox));
+  }
+
   // TODO: memory safety
   void attachParams(ParameterBundle& params, APVTS& treeState) {
     for (auto& p : params) {
       if (p->isToggle()) {
         this->attachToggle(p->getName(), treeState);
+      } else if (p->isChoice()) {
+        this->attachChoice(p->getName(), treeState);
       } else {
         this->attachParam(p->getName(), treeState);
       }
@@ -259,6 +296,30 @@ class FxMenu : public juce::TabbedComponent {
     
       void addToGui(EffectGui& gui, APVTS& treeState) override {
         gui.attachParam(name, treeState);
+      }
+    
+    };
+
+    class ParameterChoice : public Parameter {
+    private:
+      juce::StringArray choices;
+      int defaultIndex = 0;
+    
+    public:
+    
+      ParameterChoice(std::string name, juce::StringArray choiceList, int def = 0) {
+        this->amChoice = true;
+        this->name = name;
+        this->choices = choiceList;
+        this->defaultIndex = def;
+      }
+    
+      void addToTree(PARAM_LIST& pList) override {
+        pList.push_back(std::make_unique<juce::AudioParameterChoice>(this->name, this->name, choices, defaultIndex));
+      }
+    
+      void addToGui(EffectGui& gui, APVTS& treeState) override {
+        gui.attachChoice(name, treeState);
       }
     
     };

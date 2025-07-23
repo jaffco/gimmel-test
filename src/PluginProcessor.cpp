@@ -235,7 +235,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                        treeState.getRawParameterValue("reverbDamping")->load(),
                        treeState.getRawParameterValue("reverbBlend")->load(),
                        treeState.getRawParameterValue("reverbRoomLength")->load(),
-                       treeState.getRawParameterValue("reverbAbsorptionCoefficient")->load());    mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
+                       treeState.getRawParameterValue("reverbAbsorptionCoefficient")->load(),
+                       static_cast<giml::Reverb<float>::RoomType>(treeState.getRawParameterValue("reverbRoomType")->load()));
+
+    mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
     mTremolo->setParams(treeState.getRawParameterValue("tremoloSpeed")->load(),
                         treeState.getRawParameterValue("tremoloDepth")->load());
 

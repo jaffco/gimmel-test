@@ -90,6 +90,7 @@ public:
     ParameterFloat reverbBlend { "reverbBlend", 0.f, 1.f, 0.5f };
     ParameterFloat reverbRoomLength { "reverbRoomLength", 1.f, 100.f, 50.f };
     ParameterFloat reverbAbsorptionCoefficient { "reverbAbsorptionCoefficient", 0.f, 1.f, 0.9f };
+    ParameterChoice reverbRoomType { "reverbRoomType", juce::StringArray{"Cube", "Sphere", "Square Pyramid", "Cylinder", "Custom"}, 0 };
 
     ParameterBool tremoloToggle { "tremoloToggle" };
     ParameterFloat tremoloRate { "tremoloSpeed", 10.f, 2000.f, 1000.f };
@@ -107,7 +108,7 @@ public:
     ParameterBundle detuneParams{ &detuneToggle, &detunePitchRatio, &detuneWindowSize, &detuneBlend };
     ParameterBundle flangerParams{ &flangerToggle, &flangerRate, &flangerDepth, &flangerBlend };
     ParameterBundle phaserParams{ &phaserToggle, &phaserRate, &phaserFeedback };
-    ParameterBundle reverbParams{ &reverbToggle, &reverbTime, &reverbRegen, &reverbDamping, &reverbBlend, &reverbRoomLength, &reverbAbsorptionCoefficient };
+    ParameterBundle reverbParams{ &reverbToggle, &reverbTime, &reverbRegen, &reverbDamping, &reverbBlend, &reverbRoomLength, &reverbAbsorptionCoefficient, &reverbRoomType };
     ParameterBundle tremoloParams{ &tremoloToggle, &tremoloRate, &tremoloDepth };
     ParameterBundle envelopeParams{ &envelopeToggle, &envelopeQFactor, &envelopeAttackMs, &envelopeReleaseMs };
 
