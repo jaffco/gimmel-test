@@ -44,9 +44,14 @@ void AudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
-    int scopeHeight = bounds.getHeight() / processorRef.numScopes;
+    
+    // Stack both scopes in the top half of the right panel
+    int rightPanelWidth = bounds.getWidth() / 2;
+    int rightPanelHeight = bounds.getHeight();
+    int scopeHeight = rightPanelHeight / 4; // Each scope gets 1/4 of total height
+    
     for (size_t i = 0; i < processorRef.numScopes; ++i) 
     {
-        processorRef.scopes[i].setBounds(bounds.getWidth() / 2, i * scopeHeight, bounds.getWidth() / 2, scopeHeight);
+        processorRef.scopes[i].setBounds(bounds.getWidth() / 2, i * scopeHeight, rightPanelWidth, scopeHeight);
     }
 }
