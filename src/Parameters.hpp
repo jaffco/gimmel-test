@@ -133,11 +133,14 @@ class EffectGui : public juce::Component {
 private:
   std::unique_ptr<juce::ToggleButton> toggle;
   std::unique_ptr<BUTTON_ATTACHMENT> bAttachment;
+  std::vector<std::unique_ptr<juce::ToggleButton>> additionalToggles;
+  std::vector<std::unique_ptr<BUTTON_ATTACHMENT>> additionalToggleAttachments;
   std::vector<std::unique_ptr<juce::Slider>> params;
   std::vector<std::unique_ptr<juce::Label>> labels;
   std::vector<std::unique_ptr<SLIDER_ATTACHMENT>> sAttachments;
   std::vector<std::unique_ptr<juce::ComboBox>> choices;
   std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>> cAttachments;
+  bool mainToggleSet = false;
 
 public:
 
@@ -149,6 +152,10 @@ public:
 
   void makeVisible() {
     addAndMakeVisible(toggle.get());
+
+    for (auto& additionalToggle : additionalToggles) {
+      addAndMakeVisible(additionalToggle.get());
+    }
 
     for (auto& p : params) {
       addAndMakeVisible(p.get());
@@ -165,10 +172,14 @@ public:
 
   void resized() override {
     auto bounds = getLocalBounds();
-    auto totalItems = params.size() + choices.size() + 1; // +1 for toggle
+    auto totalItems = params.size() + choices.size() + additionalToggles.size() + 1; // +1 for main toggle
     auto itemHeight = bounds.getHeight() / totalItems;
 
     toggle->setBounds(bounds.removeFromTop(itemHeight));
+    
+    for (auto& additionalToggle : additionalToggles) {
+      additionalToggle->setBounds(bounds.removeFromTop(itemHeight));
+    }
     
     for (int i = 0; i < params.size(); i++) {
       auto area = bounds.removeFromTop(itemHeight);
@@ -188,7 +199,18 @@ public:
   }
 
   void attachToggle(std::string name, APVTS& treeState) {
-    bAttachment = MAKE_BUTTON(treeState, name, *toggle.get());
+    if (!mainToggleSet) {
+      // First toggle becomes the main toggle
+      bAttachment = MAKE_BUTTON(treeState, name, *toggle.get());
+      mainToggleSet = true;
+    } else {
+      // Additional toggles get added to the additionalToggles vector
+      additionalToggles.push_back(std::make_unique<juce::ToggleButton>());
+      auto& newToggle = additionalToggles.back();
+      newToggle->setButtonText(name);
+      
+      additionalToggleAttachments.push_back(MAKE_BUTTON(treeState, name, *newToggle.get()));
+    }
   }
 
   void attachParam(std::string name, APVTS& treeState) {
