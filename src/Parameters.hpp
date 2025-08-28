@@ -12,6 +12,7 @@ creating parameter objects and attaching them to the AudioProcessorValueTreeStat
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../include/Gimmel/include/gimmel.hpp"
+#include "GUI/DraggableTabbedComponent.h"
 
 #define APVTS juce::AudioProcessorValueTreeState
 #define PARAM_LIST std::vector<std::unique_ptr<juce::RangedAudioParameter>>
@@ -259,9 +260,9 @@ public:
 
 };
 
-class FxMenu : public juce::TabbedComponent {
+class FxMenu : public DraggableTabbedComponent {
   public:
-    FxMenu(bool vertical = true) : juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
+    FxMenu(bool vertical = true) : DraggableTabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
       if (vertical) {
         setTabBarDepth(30);
       }
