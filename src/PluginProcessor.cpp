@@ -9,16 +9,16 @@ void AudioPluginAudioProcessor::updateEffectOrder(const std::vector<std::string>
     // Map tab names to giml effect pointers
     std::vector<giml::Effect<float>*> newChain;
     for (const auto& name : newOrder) {
-        if (name == "Chorus") newChain.push_back(mChorus.get());
-        else if (name == "Compressor") newChain.push_back(mCompressor.get());
-        else if (name == "Delay") newChain.push_back(mDelay.get());
-        else if (name == "Detune") newChain.push_back(mDetune.get());
-        else if (name == "Flanger") newChain.push_back(mFlanger.get());
-        else if (name == "Phaser") newChain.push_back(mPhaser.get());
-        else if (name == "Reverb") newChain.push_back(mReverb.get());
-        else if (name == "Tremolo") newChain.push_back(mTremolo.get());
-        else if (name == "Envelope") newChain.push_back(mEnvelope.get());
-        else if (name == "Expander") newChain.push_back(mExpander.get());
+        if (name == "Chorus")      newChain.push_back(mChorus.get());
+        else if (name == "Compressor")  newChain.push_back(mCompressor.get());
+        else if (name == "Delay")      newChain.push_back(mDelay.get());
+        else if (name == "Detune")     newChain.push_back(mDetune.get());
+        else if (name == "Envelope")   newChain.push_back(mEnvelope.get());
+        else if (name == "Expander")   newChain.push_back(mExpander.get());
+        else if (name == "Flanger")    newChain.push_back(mFlanger.get());
+        else if (name == "Phaser")     newChain.push_back(mPhaser.get());
+        else if (name == "Reverb")     newChain.push_back(mReverb.get());
+        else if (name == "Tremolo")    newChain.push_back(mTremolo.get());
     }
     mEffectsLine.setOrder(newChain);
 }
@@ -127,44 +127,48 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // TODO: giml::EffectLine::addEffect() (encapsulation)
     int sr = static_cast<int>(sampleRate);
 
+    // Instantiate, set params, and add effects in alphabetical order
     mChorus = std::make_unique<giml::Chorus<float>>(sr);
     mChorus->setParams();
-    mEffectsLine.pushBack(mChorus.get());
 
     mCompressor = std::make_unique<giml::Compressor<float>>(sr);
     mCompressor->setParams();
-    mEffectsLine.pushBack(mCompressor.get());
 
     mDelay = std::make_unique<giml::Delay<float>>(sr);
     mDelay->setParams();
-    mEffectsLine.pushBack(mDelay.get());
 
     mDetune = std::make_unique<giml::Detune<float>>(sr);
     mDetune->setParams();
-    mEffectsLine.pushBack(mDetune.get());
-
-    mFlanger = std::make_unique<giml::Flanger<float>>(sr);
-    mFlanger->setParams();
-    mEffectsLine.pushBack(mFlanger.get());
-
-    mPhaser = std::make_unique<giml::Phaser<float>>(sr);
-    mPhaser->setParams();
-    mEffectsLine.pushBack(mPhaser.get());
-
-    mReverb = std::make_unique<giml::Reverb<float>>(sr);
-    mReverb->setParams(0.03f, 0.3f, 0.5f, 0.5f, 50.f, 0.9f); // needs defaults 
-    mEffectsLine.pushBack(mReverb.get());    
-
-    mTremolo = std::make_unique<giml::Tremolo<float>>(sr);
-    mTremolo->setParams();
-    mEffectsLine.pushBack(mTremolo.get());
 
     mEnvelope = std::make_unique<giml::EnvelopeFilter<float>>(sr);
-    mEffectsLine.pushBack(mEnvelope.get());
+    mEnvelope->setParams();
 
     mExpander = std::make_unique<giml::Expander<float>>(sr);
     mExpander->setParams();
+
+    mFlanger = std::make_unique<giml::Flanger<float>>(sr);
+    mFlanger->setParams();
+
+    mPhaser = std::make_unique<giml::Phaser<float>>(sr);
+    mPhaser->setParams();
+
+    mReverb = std::make_unique<giml::Reverb<float>>(sr);
+    mReverb->setParams(0.03f, 0.3f, 0.5f, 0.5f, 50.f, 0.9f);
+
+    mTremolo = std::make_unique<giml::Tremolo<float>>(sr);
+    mTremolo->setParams();
+
+    // Add to mEffectsLine in alphabetical order
+    mEffectsLine.pushBack(mChorus.get());
+    mEffectsLine.pushBack(mCompressor.get());
+    mEffectsLine.pushBack(mDelay.get());
+    mEffectsLine.pushBack(mDetune.get());
+    mEffectsLine.pushBack(mEnvelope.get());
     mEffectsLine.pushBack(mExpander.get());
+    mEffectsLine.pushBack(mFlanger.get());
+    mEffectsLine.pushBack(mPhaser.get());
+    mEffectsLine.pushBack(mReverb.get());
+    mEffectsLine.pushBack(mTremolo.get());
 
     // init mAudioVisualizerComponent
     for (auto& scope : scopes) 
@@ -222,6 +226,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // TODO: giml::EffectLine::updateParams()
     // ^This is non-trivial. The giml::Effect class would need a virtual function setParams()
     // that supports a variable number of arguments & variable argument types.
+    // Set parameters and toggles in alphabetical order
     mChorus->toggle(treeState.getRawParameterValue("chorusToggle")->load());
     mChorus->setParams(treeState.getRawParameterValue("chorusRate")->load(),
                        treeState.getRawParameterValue("chorusDepth")->load(),
@@ -234,7 +239,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                            treeState.getRawParameterValue("compressorKnee")->load(),
                            treeState.getRawParameterValue("compressorAttack")->load(),
                            treeState.getRawParameterValue("compressorRelease")->load());
-    
+
     mDelay->toggle(treeState.getRawParameterValue("delayToggle")->load());
     mDelay->setParams(treeState.getRawParameterValue("delayTime")->load(),
                       treeState.getRawParameterValue("delayFeedback")->load(),
@@ -245,6 +250,21 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     mDetune->setParams(treeState.getRawParameterValue("detunePitchRatio")->load(),
                        treeState.getRawParameterValue("detuneWindowSize")->load(),
                        treeState.getRawParameterValue("detuneBlend")->load());
+
+    mEnvelope->toggle(treeState.getRawParameterValue("envelopeToggle")->load());
+    mEnvelope->setParams(treeState.getRawParameterValue("envelopeQFactor")->load(), 
+                         treeState.getRawParameterValue("envelopeAttackMs")->load(), 
+                         treeState.getRawParameterValue("envelopeReleaseMs")->load());
+
+    mExpander->toggle(treeState.getRawParameterValue("expanderToggle")->load());
+    mExpander->setParams(
+        treeState.getRawParameterValue("expanderThreshold")->load(),
+        treeState.getRawParameterValue("expanderRatio")->load(),
+        treeState.getRawParameterValue("expanderKnee")->load(),
+        treeState.getRawParameterValue("expanderAttack")->load(),
+        treeState.getRawParameterValue("expanderRelease")->load(),
+        treeState.getRawParameterValue("expanderSideChainEnabled")->load()
+    );
 
     mFlanger->toggle(treeState.getRawParameterValue("flangerToggle")->load());
     mFlanger->setParams(treeState.getRawParameterValue("flangerRate")->load(),
@@ -267,21 +287,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     mTremolo->toggle(treeState.getRawParameterValue("tremoloToggle")->load());
     mTremolo->setParams(treeState.getRawParameterValue("tremoloSpeed")->load(),
                         treeState.getRawParameterValue("tremoloDepth")->load());
-
-    mEnvelope->toggle(treeState.getRawParameterValue("envelopeToggle")->load());
-    mEnvelope->setParams(treeState.getRawParameterValue("envelopeQFactor")->load(), 
-                         treeState.getRawParameterValue("envelopeAttackMs")->load(), 
-                         treeState.getRawParameterValue("envelopeReleaseMs")->load());
-
-    mExpander->toggle(treeState.getRawParameterValue("expanderToggle")->load());
-    mExpander->setParams(
-        treeState.getRawParameterValue("expanderThreshold")->load(),
-        treeState.getRawParameterValue("expanderRatio")->load(),
-        treeState.getRawParameterValue("expanderKnee")->load(),
-        treeState.getRawParameterValue("expanderAttack")->load(),
-        treeState.getRawParameterValue("expanderRelease")->load(),
-        treeState.getRawParameterValue("expanderSideChainEnabled")->load()
-    );
 
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
