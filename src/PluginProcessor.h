@@ -80,8 +80,8 @@ public:
     ParameterFloat flangerBlend { "flangerBlend", 0.f, 1.f, 0.5f };
 
     ParameterBool phaserToggle { "phaserToggle" };
-    ParameterFloat phaserRate { "phaserRate", 0.f, 20.f, 0.5f };
-    ParameterFloat phaserFeedback { "phaserFeedback", -1.f, 1.f, 0.85f };
+    ParameterFloat phaserRate { "phaserRate", 0.1f, 10.f, 0.5f };
+    ParameterFloat phaserFeedback { "phaserFeedback", -1.0f, 1.0f, 0.85f };
 
     ParameterBool reverbToggle { "reverbToggle" };
     ParameterFloat reverbTime { "reverbTime", 0.01f, 10.f, 0.03f };
@@ -101,6 +101,14 @@ public:
     ParameterFloat envelopeAttackMs { "envelopeAttackMs", 0.f, 1000.f, 7.76f };
     ParameterFloat envelopeReleaseMs { "envelopeReleaseMs", 0.f, 2000.f, 1105.f };
 
+    ParameterBool expanderToggle { "expanderToggle" };
+    ParameterFloat expanderThreshold { "expanderThreshold", -60.0f, 0.0f, 0.0f };
+    ParameterFloat expanderRatio { "expanderRatio", 1.0f, 20.0f, 4.0f };
+    ParameterFloat expanderKnee { "expanderKnee", 0.001f, 10.0f, 2.0f };
+    ParameterFloat expanderAttack { "expanderAttack", 0.0f, 100.0f, 3.5f };
+    ParameterFloat expanderRelease { "expanderRelease", 0.0f, 300.0f, 100.0f };
+    ParameterBool expanderSideChainEnabled { "expanderSideChainEnabled" };
+
     // Bundles are useful for grouping by effect to add tabs to the GUI
     ParameterBundle chorusParams{ &chorusToggle, &chorusRate, &chorusDepth, &chorusBlend };
     ParameterBundle compressorParams{ &compressorToggle, &compressorThreshold, &compressorRatio, &compressorMakeup, &compressorKnee, &compressorAttack, &compressorRelease }; 
@@ -111,17 +119,19 @@ public:
     ParameterBundle reverbParams{ &reverbToggle, &reverbTime, &reverbRegen, &reverbDamping, &reverbBlend, &reverbRoomLength, &reverbAbsorptionCoefficient, &reverbRoomType };
     ParameterBundle tremoloParams{ &tremoloToggle, &tremoloRate, &tremoloDepth };
     ParameterBundle envelopeParams{ &envelopeToggle, &envelopeQFactor, &envelopeAttackMs, &envelopeReleaseMs };
+    ParameterBundle expanderParams{ &expanderToggle, &expanderThreshold, &expanderRatio, &expanderKnee, &expanderAttack, &expanderRelease, &expanderSideChainEnabled };
 
     // Stack is useful for adding to the treeState
     ParameterStack fxParams{ &chorusParams, 
-                            &compressorParams, 
-                            &delayParams, 
-                            &detuneParams, 
-                            &flangerParams,
-                            &phaserParams, 
-                            &reverbParams,
-                            &tremoloParams,
-                            &envelopeParams };
+                             &compressorParams, 
+                             &delayParams, 
+                             &detuneParams, 
+                             &flangerParams,
+                             &phaserParams, 
+                             &reverbParams,
+                             &tremoloParams,
+                             &envelopeParams,
+                             &expanderParams };
     
     // public treeState?
     juce::AudioProcessorValueTreeState treeState;
@@ -139,6 +149,7 @@ private:
     std::unique_ptr<giml::Reverb<float>> mReverb;
     std::unique_ptr<giml::Tremolo<float>> mTremolo;
     std::unique_ptr<giml::EnvelopeFilter<float>> mEnvelope;
+    std::unique_ptr<giml::Expander<float>> mExpander;
 
     // for wavfile
     int playHead = 0;

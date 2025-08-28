@@ -19,6 +19,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     mFxMenu.addEffect("Reverb", p.reverbParams, p.treeState);
     mFxMenu.addEffect("Tremolo", p.tremoloParams, p.treeState);
     mFxMenu.addEffect("Envelope", p.envelopeParams, p.treeState);
+    mFxMenu.addEffect("Expander", p.expanderParams, p.treeState);
     addAndMakeVisible(&mFxMenu);
 
     for (auto& scope : processorRef.scopes) 

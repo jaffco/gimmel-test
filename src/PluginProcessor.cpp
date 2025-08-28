@@ -140,6 +140,10 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     mEnvelope = std::make_unique<giml::EnvelopeFilter<float>>(sr);
     mEffectsLine.pushBack(mEnvelope.get());
 
+    mExpander = std::make_unique<giml::Expander<float>>(sr);
+    mExpander->setParams();
+    mEffectsLine.pushBack(mExpander.get());
+
     // init mAudioVisualizerComponent
     for (auto& scope : scopes) 
     {
@@ -247,11 +251,21 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                          treeState.getRawParameterValue("envelopeAttackMs")->load(), 
                          treeState.getRawParameterValue("envelopeReleaseMs")->load());
 
+    mExpander->toggle(treeState.getRawParameterValue("expanderToggle")->load());
+    mExpander->setParams(
+        treeState.getRawParameterValue("expanderThreshold")->load(),
+        treeState.getRawParameterValue("expanderRatio")->load(),
+        treeState.getRawParameterValue("expanderKnee")->load(),
+        treeState.getRawParameterValue("expanderAttack")->load(),
+        treeState.getRawParameterValue("expanderRelease")->load(),
+        treeState.getRawParameterValue("expanderSideChainEnabled")->load()
+    );
+
     // sample loop
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-        const float* input = buffer.getReadPointer(0, sample); // option for real-time input
-        // const float* input = &wav_data[playHead]; // read from looping file
+        // const float* input = buffer.getReadPointer(0, sample); // option for real-time input
+        const float* input = &wav_data[playHead]; // read from looping file
         playHead++;                        
         if (playHead >= wav_data_len) { playHead = 0; }
 
