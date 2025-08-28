@@ -16,9 +16,6 @@ void DraggableTabBarButton::mouseDown(const juce::MouseEvent& e)
     {
         isDragging = false;
         dragStartPosition = e.getPosition();
-        juce::Logger::writeToLog("Mouse down on tab " + juce::String(getIndex()) + 
-                                " at position (" + juce::String(e.getPosition().x) + 
-                                "," + juce::String(e.getPosition().y) + ")");
     }
     
     // Call the parent class to handle normal tab selection
@@ -38,7 +35,6 @@ void DraggableTabBarButton::mouseDrag(const juce::MouseEvent& e)
             
             // Instead of starting drag from the button, notify the parent to start it
             auto tabIndex = getIndex();
-            juce::Logger::writeToLog("Notifying parent to start drag for tab " + juce::String(tabIndex));
             
             // Find our parent DraggableTabbedComponent and have it start the drag
             if (auto* parent = findParentComponentOfClass<DraggableTabbedComponent>())
@@ -56,7 +52,6 @@ void DraggableTabBarButton::mouseUp(const juce::MouseEvent& e)
 {
     if (isDragging)
     {
-        juce::Logger::writeToLog("Mouse up - drag ended for tab " + juce::String(getIndex()));
         isDragging = false;
     }
     

@@ -262,6 +262,9 @@ public:
 
 class FxMenu : public DraggableTabbedComponent {
   public:
+    // Callback for tab order changes
+    std::function<void(const std::vector<std::string>&)> onTabOrderChanged;
+
     FxMenu(bool vertical = true) : DraggableTabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
       if (vertical) {
         setTabBarDepth(30);
@@ -275,7 +278,16 @@ class FxMenu : public DraggableTabbedComponent {
       eg->resized();
       addTab(name, juce::Colours::darkolivegreen, eg.release(), true);
     }
-  
+
+    // Called by DraggableTabbedComponent after tab order changes
+    void emitTabOrderChanged() {
+      if (onTabOrderChanged) {
+        std::vector<std::string> newOrder;
+        for (int i = 0; i < getNumTabs(); ++i)
+          newOrder.push_back(getTabNames()[i].toStdString());
+        onTabOrderChanged(newOrder);
+      }
+    }
   };
 
   class ParameterBool : public Parameter {

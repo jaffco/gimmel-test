@@ -7,9 +7,10 @@
 #include "../media/test.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
-{
+class AudioPluginAudioProcessor final : public juce::AudioProcessor {
 public:
+    // Update effect order at runtime
+    void updateEffectOrder(const std::vector<std::string>& newOrder);
     //==============================================================================
     AudioPluginAudioProcessor();
     ~AudioPluginAudioProcessor() override;

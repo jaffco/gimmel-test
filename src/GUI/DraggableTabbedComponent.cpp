@@ -1,3 +1,7 @@
+#include "../Parameters.hpp" // For FxMenu
+#include <vector>
+#include <string>
+class FxMenu;
 #include "DraggableTabbedComponent.h"
 
 DraggableTabbedComponent::DraggableTabbedComponent(juce::TabbedButtonBar::Orientation orientation)
@@ -16,7 +20,6 @@ juce::TabBarButton* DraggableTabbedComponent::createTabButton(const juce::String
 
 void DraggableTabbedComponent::startDragFromTab(int tabIndex, juce::Component* sourceComponent)
 {
-    juce::Logger::writeToLog("DraggableTabbedComponent starting drag for tab " + juce::String(tabIndex));
     
     // Start the drag operation from this component (which is a DragAndDropContainer)
     startDragging(juce::var(tabIndex), sourceComponent);
@@ -28,15 +31,12 @@ bool DraggableTabbedComponent::isInterestedInDragSource(const juce::DragAndDropT
     bool interested = dragSourceDetails.sourceComponent != nullptr && 
                      dynamic_cast<DraggableTabBarButton*>(dragSourceDetails.sourceComponent.get()) != nullptr;
     
-    juce::Logger::writeToLog(juce::String("isInterestedInDragSource: ") + (interested ? "true" : "false") + 
-                            ", source: " + (dragSourceDetails.sourceComponent != nullptr ? "valid" : "null"));
     
     return interested;
 }
 
 void DraggableTabbedComponent::itemDragEnter(const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
 {
-    juce::Logger::writeToLog("itemDragEnter called");
     isDragOver = true;
     repaint();
 }
@@ -54,7 +54,6 @@ void DraggableTabbedComponent::itemDragMove(const juce::DragAndDropTarget::Sourc
 
 void DraggableTabbedComponent::itemDragExit(const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
 {
-    juce::Logger::writeToLog("itemDragExit called");
     isDragOver = false;
     repaint();
 }
@@ -74,19 +73,18 @@ void DraggableTabbedComponent::itemDropped(const juce::DragAndDropTarget::Source
         int targetIndex = calculateDropIndex(dropPos);
         
         // Debug output
-        juce::Logger::writeToLog("Drop: source=" + juce::String(sourceIndex) + 
-                                ", target=" + juce::String(targetIndex) + 
-                                ", pos=(" + juce::String(dropPos.x) + "," + juce::String(dropPos.y) + ")");
         
         // Move the tab if the position changed
         if (targetIndex != sourceIndex && targetIndex >= 0 && targetIndex < getNumTabs())
         {
-            juce::Logger::writeToLog("Moving tab from " + juce::String(sourceIndex) + " to " + juce::String(targetIndex));
             moveTab(sourceIndex, targetIndex, true);
+            // Notify tab order change if subclass implements emitTabOrderChanged
+            if (auto* fxMenu = dynamic_cast<class FxMenu*>(this)) {
+                fxMenu->emitTabOrderChanged();
+            }
         }
         else
         {
-            juce::Logger::writeToLog("No move needed or invalid target index");
         }
     }
 }

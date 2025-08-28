@@ -22,6 +22,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     mFxMenu.addEffect("Expander", p.expanderParams, p.treeState);
     addAndMakeVisible(&mFxMenu);
 
+    // Wire up tab order change callback
+    mFxMenu.onTabOrderChanged = [this](const std::vector<std::string>& newOrder) {
+        processorRef.updateEffectOrder(newOrder);
+    };
+        mFxMenu.onTabOrderChanged = [this](const std::vector<std::string>& newOrder) {
+            processorRef.updateEffectOrder(newOrder);
+        };
+
     for (auto& scope : processorRef.scopes) 
     {
         addAndMakeVisible(&scope);

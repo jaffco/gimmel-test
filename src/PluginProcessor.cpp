@@ -1,5 +1,27 @@
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <vector>
+#include <string>
+
+// Update effect order at runtime from GUI tab order
+void AudioPluginAudioProcessor::updateEffectOrder(const std::vector<std::string>& newOrder) {
+    // Map tab names to giml effect pointers
+    std::vector<giml::Effect<float>*> newChain;
+    for (const auto& name : newOrder) {
+        if (name == "Chorus") newChain.push_back(mChorus.get());
+        else if (name == "Compressor") newChain.push_back(mCompressor.get());
+        else if (name == "Delay") newChain.push_back(mDelay.get());
+        else if (name == "Detune") newChain.push_back(mDetune.get());
+        else if (name == "Flanger") newChain.push_back(mFlanger.get());
+        else if (name == "Phaser") newChain.push_back(mPhaser.get());
+        else if (name == "Reverb") newChain.push_back(mReverb.get());
+        else if (name == "Tremolo") newChain.push_back(mTremolo.get());
+        else if (name == "Envelope") newChain.push_back(mEnvelope.get());
+        else if (name == "Expander") newChain.push_back(mExpander.get());
+    }
+    mEffectsLine.setOrder(newChain);
+}
 
 // add params
 juce::AudioProcessorValueTreeState::ParameterLayout
