@@ -12,6 +12,7 @@ creating parameter objects and attaching them to the AudioProcessorValueTreeStat
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../include/Gimmel/include/gimmel.hpp"
+#include "GUI/DraggableTabbedComponent.h"
 
 #define APVTS juce::AudioProcessorValueTreeState
 #define PARAM_LIST std::vector<std::unique_ptr<juce::RangedAudioParameter>>
@@ -133,11 +134,14 @@ class EffectGui : public juce::Component {
 private:
   std::unique_ptr<juce::ToggleButton> toggle;
   std::unique_ptr<BUTTON_ATTACHMENT> bAttachment;
+  std::vector<std::unique_ptr<juce::ToggleButton>> additionalToggles;
+  std::vector<std::unique_ptr<BUTTON_ATTACHMENT>> additionalToggleAttachments;
   std::vector<std::unique_ptr<juce::Slider>> params;
   std::vector<std::unique_ptr<juce::Label>> labels;
   std::vector<std::unique_ptr<SLIDER_ATTACHMENT>> sAttachments;
   std::vector<std::unique_ptr<juce::ComboBox>> choices;
   std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>> cAttachments;
+  bool mainToggleSet = false;
 
 public:
 
@@ -149,6 +153,10 @@ public:
 
   void makeVisible() {
     addAndMakeVisible(toggle.get());
+
+    for (auto& additionalToggle : additionalToggles) {
+      addAndMakeVisible(additionalToggle.get());
+    }
 
     for (auto& p : params) {
       addAndMakeVisible(p.get());
@@ -165,10 +173,14 @@ public:
 
   void resized() override {
     auto bounds = getLocalBounds();
-    auto totalItems = params.size() + choices.size() + 1; // +1 for toggle
+    auto totalItems = params.size() + choices.size() + additionalToggles.size() + 1; // +1 for main toggle
     auto itemHeight = bounds.getHeight() / totalItems;
 
     toggle->setBounds(bounds.removeFromTop(itemHeight));
+    
+    for (auto& additionalToggle : additionalToggles) {
+      additionalToggle->setBounds(bounds.removeFromTop(itemHeight));
+    }
     
     for (int i = 0; i < params.size(); i++) {
       auto area = bounds.removeFromTop(itemHeight);
@@ -188,7 +200,18 @@ public:
   }
 
   void attachToggle(std::string name, APVTS& treeState) {
-    bAttachment = MAKE_BUTTON(treeState, name, *toggle.get());
+    if (!mainToggleSet) {
+      // First toggle becomes the main toggle
+      bAttachment = MAKE_BUTTON(treeState, name, *toggle.get());
+      mainToggleSet = true;
+    } else {
+      // Additional toggles get added to the additionalToggles vector
+      additionalToggles.push_back(std::make_unique<juce::ToggleButton>());
+      auto& newToggle = additionalToggles.back();
+      newToggle->setButtonText(name);
+      
+      additionalToggleAttachments.push_back(MAKE_BUTTON(treeState, name, *newToggle.get()));
+    }
   }
 
   void attachParam(std::string name, APVTS& treeState) {
@@ -237,9 +260,12 @@ public:
 
 };
 
-class FxMenu : public juce::TabbedComponent {
+class FxMenu : public DraggableTabbedComponent {
   public:
-    FxMenu(bool vertical = true) : juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
+    // Callback for tab order changes
+    std::function<void(const std::vector<std::string>&)> onTabOrderChanged;
+
+    FxMenu(bool vertical = true) : DraggableTabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
       if (vertical) {
         setTabBarDepth(30);
       }
@@ -252,7 +278,16 @@ class FxMenu : public juce::TabbedComponent {
       eg->resized();
       addTab(name, juce::Colours::darkolivegreen, eg.release(), true);
     }
-  
+
+    // Called by DraggableTabbedComponent after tab order changes
+    void emitTabOrderChanged() {
+      if (onTabOrderChanged) {
+        std::vector<std::string> newOrder;
+        for (int i = 0; i < getNumTabs(); ++i)
+          newOrder.push_back(getTabNames()[i].toStdString());
+        onTabOrderChanged(newOrder);
+      }
+    }
   };
 
   class ParameterBool : public Parameter {

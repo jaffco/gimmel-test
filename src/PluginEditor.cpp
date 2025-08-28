@@ -14,12 +14,21 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     mFxMenu.addEffect("Compressor", p.compressorParams, p.treeState);
     mFxMenu.addEffect("Delay", p.delayParams, p.treeState);
     mFxMenu.addEffect("Detune", p.detuneParams, p.treeState);
+    mFxMenu.addEffect("Envelope", p.envelopeParams, p.treeState);
+    mFxMenu.addEffect("Expander", p.expanderParams, p.treeState);
     mFxMenu.addEffect("Flanger", p.flangerParams, p.treeState);
     mFxMenu.addEffect("Phaser", p.phaserParams, p.treeState);
     mFxMenu.addEffect("Reverb", p.reverbParams, p.treeState);
     mFxMenu.addEffect("Tremolo", p.tremoloParams, p.treeState);
-    mFxMenu.addEffect("Envelope", p.envelopeParams, p.treeState);
     addAndMakeVisible(&mFxMenu);
+
+    // Wire up tab order change callback
+    mFxMenu.onTabOrderChanged = [this](const std::vector<std::string>& newOrder) {
+        processorRef.updateEffectOrder(newOrder);
+    };
+        mFxMenu.onTabOrderChanged = [this](const std::vector<std::string>& newOrder) {
+            processorRef.updateEffectOrder(newOrder);
+        };
 
     for (auto& scope : processorRef.scopes) 
     {
@@ -44,9 +53,14 @@ void AudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     mFxMenu.setBounds(0, 0, bounds.getWidth() / 2, bounds.getHeight());
-    int scopeHeight = bounds.getHeight() / processorRef.numScopes;
+    
+    // Stack both scopes in the top half of the right panel
+    int rightPanelWidth = bounds.getWidth() / 2;
+    int rightPanelHeight = bounds.getHeight();
+    int scopeHeight = rightPanelHeight / 4; // Each scope gets 1/4 of total height
+    
     for (size_t i = 0; i < processorRef.numScopes; ++i) 
     {
-        processorRef.scopes[i].setBounds(bounds.getWidth() / 2, i * scopeHeight, bounds.getWidth() / 2, scopeHeight);
+        processorRef.scopes[i].setBounds(bounds.getWidth() / 2, i * scopeHeight, rightPanelWidth, scopeHeight);
     }
 }
